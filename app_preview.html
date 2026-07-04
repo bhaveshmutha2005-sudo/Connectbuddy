@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BuddyConnect - App Preview</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .phone-frame {
+            width: 100%;
+            max-width: 400px;
+            height: 90vh;
+            max-height: 850px;
+            background: #0f0f1a;
+            border-radius: 40px;
+            border: 8px solid #2d2d44;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(108, 99, 255, 0.3);
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: none;
+            background: #f8f9fa;
+        }
+        .screen.active { display: block; }
+
+        /* Splash Screen */
+        .splash-screen {
+            background: linear-gradient(135deg, #6C63FF 0%, #4A42DB 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: white;
+            text-align: center;
+        }
+        .splash-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .splash-title { font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+        .splash-subtitle { font-size: 16px; opacity: 0.8; }
+        .splash-loading {
+            margin-top: 40px;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Login Screen */
+        .login-screen { padding: 40px 24px; background: white; }
+        .login-header { text-align: center; margin-bottom: 40px; }
+        .login-logo {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #6C63FF, #9D97FF);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px;
+        }
+        .login-title { font-size: 28px; font-weight: bold; color: #1a1a2e; margin-bottom: 8px; }
+        .login-subtitle { color: #6b7280; font-size: 14px; }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 16px;
+            outline: none;
+        }
+        .input-field:focus { border-color: #6C63FF; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 16px;
+            background: white;
+            color: #6C63FF;
+            border: 2px solid #6C63FF;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-google { border-color: #e5e7eb; color: #374151; }
+        .btn-phone { border-color: #e5e7eb; color: #374151; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        .divider span { padding: 0 16px; }
+
+        .link-text {
+            text-align: center;
+            color: #6C63FF;
+            font-size: 14px;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+
+        /* Home Screen */
+        .home-screen { background: #f8f9fa; }
+        .app-bar {
+            background: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .app-bar-title { font-size: 20px; font-weight: 600; color: #1a1a2e; }
+        .app-bar-icon { font-size: 24px; cursor: pointer; }
+
+        .search-bar {
+            margin: 16px;
+            display: flex;
+            gap: 8px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            font-size: 14px;
+        }
+        .search-btn {
+            padding: 12px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .category-chips {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+        .category-chip {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .category-chip.active {
+            background: #6C63FF;
+            color: white;
+            border-color: #6C63FF;
+        }
+
+        .companion-card {
+            background: white;
+            margin: 0 16px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .companion-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .companion-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6C63FF, #9D97FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .companion-info { flex: 1; }
+        .companion-name {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .verified-badge { color: #00BFA6; font-size: 16px; }
+        .companion-categories {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .companion-cat {
+            padding: 2px 8px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .companion-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .star { color: #fbbf24; }
+
+        .companion-bio {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .companion-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .skill-tag {
+            padding: 4px 10px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .companion-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .companion-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #6C63FF;
+        }
+        .companion-price span {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: normal;
+        }
+        .book-btn {
+            padding: 10px 20px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 384px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 24px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            border-radius: 0 0 32px 32px;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 11px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-item .icon { font-size: 24px; }
+
+        /* SOS Button */
+        .sos-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            z-index: 100;
+            animation: sosPulse 2s infinite;
+        }
+        @keyframes sosPulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(239, 68, 68, 0.7); }
+        }
+
+        /* Profile Screen */
+        .profile-header {
+            background: linear-gradient(135deg, #6C63FF, #4A42DB);
+            padding: 40px 24px;
+            text-align: center;
+            color: white;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        .profile-name { font-size: 24px; font-weight: bold; }
+        .profile-email { opacity: 0.8; margin-top: 4px; }
+
+        .menu-card {
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .menu-item {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-icon { font-size: 24px; color: #6C63FF; }
+        .menu-text { flex: 1; font-size: 16px; }
+        .menu-arrow { color: #9ca3af; }
+
+        /* Wallet Screen */
+        .wallet-balance {
+            background: linear-gradient(135deg, #6C63FF, #4A42DB);
+            margin: 16px;
+            padding: 24px;
+            border-radius: 20px;
+            color: white;
+        }
+        .wallet-label { opacity: 0.8; font-size: 14px; }
+        .wallet-amount { font-size: 36px; font-weight: bold; margin: 8px 0 16px; }
+        .wallet-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .wallet-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .wallet-btn-primary { background: white; color: #6C63FF; }
+        .wallet-btn-secondary { background: rgba(255,255,255,0.2); color: white; }
+
+        /* Booking Screen */
+        .booking-tabs {
+            display: flex;
+            background: white;
+            padding: 0 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .booking-tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: #9ca3af;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        .booking-tab.active {
+            color: #6C63FF;
+            border-bottom-color: #6C63FF;
+            font-weight: 600;
+        }
+
+        .booking-card {
+            background: white;
+            margin: 16px;
+            padding: 16px;
+            border-radius: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .booking-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6C63FF, #9D97FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .booking-info { flex: 1; }
+        .booking-name { font-weight: 600; }
+        .booking-details { font-size: 13px; color: #6b7280; margin-top: 2px; }
+        .booking-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-confirmed { background: #dbeafe; color: #2563eb; }
+        .status-ongoing { background: #fef3c7; color: #d97706; }
+        .status-completed { background: #d1fae5; color: #059669; }
+        .status-cancelled { background: #fee2e2; color: #dc2626; }
+
+        /* Chat Screen */
+        .chat-list-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: white;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+        }
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6C63FF, #9D97FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .chat-info { flex: 1; }
+        .chat-name { font-weight: 600; display: flex; justify-content: space-between; }
+        .chat-time { font-size: 12px; color: #9ca3af; }
+        .chat-preview { font-size: 14px; color: #6b7280; margin-top: 4px; }
+
+        /* SOS Screen */
+        .sos-screen {
+            background: white;
+            padding: 24px;
+            text-align: center;
+        }
+        .sos-icon { font-size: 80px; margin-bottom: 24px; }
+        .sos-title { font-size: 28px; font-weight: bold; color: #dc2626; margin-bottom: 16px; }
+        .sos-desc { color: #6b7280; margin-bottom: 40px; line-height: 1.6; }
+        .sos-big-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: #dc2626;
+            color: white;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 auto;
+            animation: sosPulse 2s infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .sos-big-btn .sos-icon-btn { font-size: 40px; }
+
+        /* Admin Dashboard Preview */
+        .admin-screen { background: #f3f4f6; }
+        .admin-header {
+            background: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .admin-title { font-size: 18px; font-weight: 600; }
+        .admin-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 16px;
+        }
+        .admin-stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .admin-stat-value { font-size: 24px; font-weight: bold; color: #6C63FF; }
+        .admin-stat-label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+        .nav-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+        }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #d1d5db;
+            cursor: pointer;
+        }
+        .nav-dot.active { background: #6C63FF; }
+
+        .feature-list {
+            padding: 16px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 12px;
+        }
+        .feature-check { color: #00BFA6; font-size: 20px; }
+        .feature-text { font-size: 14px; }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 16px;
+        }
+        .tech-badge {
+            padding: 6px 12px;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6C63FF;
+            border: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            padding: 16px 16px 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .code-preview {
+            background: #1a1a2e;
+            color: #00BFA6;
+            padding: 16px;
+            margin: 16px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        .code-keyword { color: #ff6584; }
+        .code-string { color: #fbbf24; }
+        .code-comment { color: #6b7280; }
+
+        .deploy-btn {
+            margin: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #6C63FF, #4A42DB);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: calc(100% - 32px);
+        }
+
+        .info-card {
+            background: white;
+            margin: 16px;
+            padding: 20px;
+            border-radius: 16px;
+        }
+        .info-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+        .info-text { font-size: 14px; color: #6b7280; line-height: 1.6; }
+        .info-step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+        .step-num {
+            width: 28px;
+            height: 28px;
+            background: #6C63FF;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-text { font-size: 14px; color: #4b5563; }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Screen 1: Splash -->
+        <div class="screen splash-screen active" id="splash">
+            <div class="splash-icon">👥</div>
+            <div class="splash-title">BuddyConnect</div>
+            <div class="splash-subtitle">Safe Public Companionship</div>
+            <div class="splash-loading"></div>
+            <div style="margin-top: 60px; font-size: 14px; opacity: 0.6;">
+                Tap anywhere to explore the app preview
+            </div>
+        </div>
+
+        <!-- Screen 2: Login -->
+        <div class="screen login-screen" id="login">
+            <div class="login-header">
+                <div class="login-logo">👥</div>
+                <div class="login-title">Welcome Back!</div>
+                <div class="login-subtitle">Sign in to continue finding safe companionship</div>
+            </div>
+            <input type="email" class="input-field" placeholder="Email address" value="user@example.com">
+            <input type="password" class="input-field" placeholder="Password" value="••••••••">
+            <button class="btn-primary" onclick="showScreen('home')">Sign In</button>
+            <div class="divider"><span>OR</span></div>
+            <button class="btn-secondary btn-google">🔍 Continue with Google</button>
+            <button class="btn-secondary btn-phone">📱 Continue with Phone</button>
+            <div class="link-text">Don't have an account? Sign Up</div>
+            <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #9ca3af;">
+                🔒 This is a preview. Real app requires Firebase setup.
+            </div>
+        </div>
+
+        <!-- Screen 3: Home/Search -->
+        <div class="screen home-screen" id="home">
+            <div class="app-bar">
+                <div class="app-bar-title">BuddyConnect</div>
+                <div class="app-bar-icon" onclick="showScreen('profile')">👤</div>
+            </div>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search companions...">
+                <button class="search-btn">🔍</button>
+            </div>
+            <div class="category-chips">
+                <div class="category-chip active">All</div>
+                <div class="category-chip">Shopping</div>
+                <div class="category-chip">Travel</div>
+                <div class="category-chip">Events</div>
+                <div class="category-chip">Dining</div>
+                <div class="category-chip">Movies</div>
+            </div>
+
+            <div class="companion-card">
+                <div class="companion-header">
+                    <div class="companion-avatar">S</div>
+                    <div class="companion-info">
+                        <div class="companion-name">
+                            Sarah M.
+                            <span class="verified-badge">✓</span>
+                        </div>
+                        <div class="companion-categories">
+                            <span class="companion-cat">Shopping Partner</span>
+                            <span class="companion-cat">Event Partner</span>
+                        </div>
+                        <div class="companion-rating">
+                            <span class="star">★</span> 4.8 (124 reviews)
+                        </div>
+                    </div>
+                </div>
+                <div class="companion-bio">
+                    Friendly and outgoing companion for shopping trips, events, and city tours. 
+                    I love exploring new places and meeting new people!
+                </div>
+                <div class="companion-skills">
+                    <span class="skill-tag">🗣️ English, Hindi</span>
+                    <span class="skill-tag">📸 Photography</span>
+                    <span class="skill-tag">🍕 Foodie</span>
+                </div>
+                <div class="companion-footer">
+                    <div class="companion-price">₹500<span>/hr</span></div>
+                    <button class="book-btn" onclick="showScreen('bookings')">Book Now</button>
+                </div>
+            </div>
+
+            <div class="companion-card">
+                <div class="companion-header">
+                    <div class="companion-avatar" style="background: linear-gradient(135deg, #00BFA6, #00E5FF);">R</div>
+                    <div class="companion-info">
+                        <div class="companion-name">
+                            Rahul K.
+                            <span class="verified-badge">✓</span>
+                        </div>
+                        <div class="companion-categories">
+                            <span class="companion-cat">Travel Companion</span>
+                            <span class="companion-cat">Local Guide</span>
+                        </div>
+                        <div class="companion-rating">
+                            <span class="star">★</span> 4.9 (89 reviews)
+                        </div>
+                    </div>
+                </div>
+                <div class="companion-bio">
+                    Experienced travel companion and local guide. I know all the hidden gems 
+                    of the city and can help you plan the perfect trip!
+                </div>
+                <div class="companion-skills">
+                    <span class="skill-tag">🗣️ English, Hindi, Marathi</span>
+                    <span class="skill-tag">🗺️ Navigation</span>
+                    <span class="skill-tag">📱 Tech Savvy</span>
+                </div>
+                <div class="companion-footer">
+                    <div class="companion-price">₹800<span>/hr</span></div>
+                    <button class="book-btn" onclick="showScreen('bookings')">Book Now</button>
+                </div>
+            </div>
+
+            <div style="height: 100px;"></div>
+
+            <button class="sos-btn" onclick="showScreen('sos')">SOS</button>
+
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="showScreen('home')">
+                    <span class="icon">🔍</span>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('bookings')">
+                    <span class="icon">📅</span>
+                    <span>Bookings</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('chat')">
+                    <span class="icon">💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('wallet')">
+                    <span class="icon">💰</span>
+                    <span>Wallet</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Bookings -->
+        <div class="screen" id="bookings" style="background: #f8f9fa;">
+            <div class="app-bar">
+                <div class="app-bar-title">My Bookings</div>
+                <div class="app-bar-icon">📅</div>
+            </div>
+            <div class="booking-tabs">
+                <div class="booking-tab active">Upcoming</div>
+                <div class="booking-tab">Ongoing</div>
+                <div class="booking-tab">Completed</div>
+                <div class="booking-tab">Cancelled</div>
+            </div>
+            <div class="booking-card">
+                <div class="booking-avatar">S</div>
+                <div class="booking-info">
+                    <div class="booking-name">Sarah M.</div>
+                    <div class="booking-details">Shopping Partner • Dec 15, 2:00 PM</div>
+                    <div class="booking-details">₹1,500 total</div>
+                </div>
+                <div class="booking-status status-confirmed">CONFIRMED</div>
+            </div>
+            <div class="booking-card">
+                <div class="booking-avatar" style="background: linear-gradient(135deg, #00BFA6, #00E5FF);">R</div>
+                <div class="booking-info">
+                    <div class="booking-name">Rahul K.</div>
+                    <div class="booking-details">Travel Companion • Dec 20, 10:00 AM</div>
+                    <div class="booking-details">₹3,200 total</div>
+                </div>
+                <div class="booking-status status-confirmed">CONFIRMED</div>
+            </div>
+            <div style="height: 80px;"></div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home')">
+                    <span class="icon">🔍</span>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item active" onclick="showScreen('bookings')">
+                    <span class="icon">📅</span>
+                    <span>Bookings</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('chat')">
+                    <span class="icon">💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('wallet')">
+                    <span class="icon">💰</span>
+                    <span>Wallet</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Chat -->
+        <div class="screen" id="chat" style="background: #f8f9fa;">
+            <div class="app-bar">
+                <div class="app-bar-title">Messages</div>
+                <div class="app-bar-icon">💬</div>
+            </div>
+            <div class="chat-list-item">
+                <div class="chat-avatar">S</div>
+                <div class="chat-info">
+                    <div class="chat-name">
+                        Sarah M.
+                        <span class="chat-time">2:30 PM</span>
+                    </div>
+                    <div class="chat-preview">Looking forward to our shopping trip! 🛍️</div>
+                </div>
+            </div>
+            <div class="chat-list-item">
+                <div class="chat-avatar" style="background: linear-gradient(135deg, #00BFA6, #00E5FF);">R</div>
+                <div class="chat-info">
+                    <div class="chat-name">
+                        Rahul K.
+                        <span class="chat-time">Yesterday</span>
+                    </div>
+                    <div class="chat-preview">I'll pick you up at the hotel lobby at 10 AM</div>
+                </div>
+            </div>
+            <div class="chat-list-item">
+                <div class="chat-avatar" style="background: linear-gradient(135deg, #FF6584, #FFB800);">A</div>
+                <div class="chat-info">
+                    <div class="chat-name">
+                        Ananya P.
+                        <span class="chat-time">Mon</span>
+                    </div>
+                    <div class="chat-preview">Thanks for the lovely evening! 🎬</div>
+                </div>
+            </div>
+            <div style="height: 80px;"></div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home')">
+                    <span class="icon">🔍</span>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('bookings')">
+                    <span class="icon">📅</span>
+                    <span>Bookings</span>
+                </div>
+                <div class="nav-item active" onclick="showScreen('chat')">
+                    <span class="icon">💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('wallet')">
+                    <span class="icon">💰</span>
+                    <span>Wallet</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Wallet -->
+        <div class="screen" id="wallet" style="background: #f8f9fa;">
+            <div class="app-bar">
+                <div class="app-bar-title">Wallet</div>
+                <div class="app-bar-icon">💰</div>
+            </div>
+            <div class="wallet-balance">
+                <div class="wallet-label">Wallet Balance</div>
+                <div class="wallet-amount">₹2,450.00</div>
+                <div class="wallet-actions">
+                    <button class="wallet-btn wallet-btn-primary">➕ Add Money</button>
+                    <button class="wallet-btn wallet-btn-secondary">⬇️ Withdraw</button>
+                </div>
+            </div>
+            <div class="section-title">Recent Transactions</div>
+            <div class="menu-card">
+                <div class="menu-item">
+                    <span style="font-size: 24px;">⬇️</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">Wallet Top-up</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Via UPI</div>
+                    </div>
+                    <span style="color: #00BFA6; font-weight: 600;">+₹1,000</span>
+                </div>
+                <div class="menu-item">
+                    <span style="font-size: 24px;">⬆️</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">Booking Payment</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Sarah M. - Shopping</div>
+                    </div>
+                    <span style="color: #ef4444; font-weight: 600;">-₹1,500</span>
+                </div>
+                <div class="menu-item">
+                    <span style="font-size: 24px;">🎁</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">Referral Bonus</div>
+                        <div style="font-size: 12px; color: #9ca3af;">From friend signup</div>
+                    </div>
+                    <span style="color: #00BFA6; font-weight: 600;">+₹100</span>
+                </div>
+                <div class="menu-item">
+                    <span style="font-size: 24px;">↩️</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">Refund</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Cancelled booking</div>
+                    </div>
+                    <span style="color: #00BFA6; font-weight: 600;">+₹850</span>
+                </div>
+            </div>
+            <div style="height: 80px;"></div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home')">
+                    <span class="icon">🔍</span>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('bookings')">
+                    <span class="icon">📅</span>
+                    <span>Bookings</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('chat')">
+                    <span class="icon">💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item active" onclick="showScreen('wallet')">
+                    <span class="icon">💰</span>
+                    <span>Wallet</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 7: Profile -->
+        <div class="screen" id="profile" style="background: #f8f9fa;">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-name">John Doe</div>
+                <div class="profile-email">john.doe@email.com</div>
+                <div style="margin-top: 12px;">
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 12px;">User</span>
+                </div>
+            </div>
+            <div class="menu-card">
+                <div class="menu-item">
+                    <span class="menu-icon">✏️</span>
+                    <span class="menu-text">Edit Profile</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">✅</span>
+                    <span class="menu-text">Verification</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">❤️</span>
+                    <span class="menu-text">Favorites</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">📜</span>
+                    <span class="menu-text">Booking History</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+            </div>
+            <div class="menu-card">
+                <div class="menu-item">
+                    <span class="menu-icon">🎁</span>
+                    <span class="menu-text">Referral Program</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">⭐</span>
+                    <span class="menu-text">Subscription Plans</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">🎧</span>
+                    <span class="menu-text">Customer Support</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+            </div>
+            <div class="menu-card">
+                <div class="menu-item">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-text">Settings</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">❓</span>
+                    <span class="menu-text">Help & FAQ</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <span class="menu-icon">🔒</span>
+                    <span class="menu-text">Privacy Policy</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+            </div>
+            <button style="margin: 16px; width: calc(100% - 32px); padding: 16px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600;">
+                🚪 Logout
+            </button>
+            <div style="height: 80px;"></div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('home')">
+                    <span class="icon">🔍</span>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('bookings')">
+                    <span class="icon">📅</span>
+                    <span>Bookings</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('chat')">
+                    <span class="icon">💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('wallet')">
+                    <span class="icon">💰</span>
+                    <span>Wallet</span>
+                </div>
+                <div class="nav-item active" onclick="showScreen('profile')">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 8: SOS -->
+        <div class="screen sos-screen" id="sos">
+            <div style="text-align: left; margin-bottom: 20px;">
+                <button onclick="showScreen('home')" style="background: none; border: none; font-size: 24px; cursor: pointer;">←</button>
+            </div>
+            <div class="sos-icon">🚨</div>
+            <div class="sos-title">Emergency SOS</div>
+            <div class="sos-desc">
+                Press and hold the SOS button for 5 seconds to send an emergency alert 
+                to your contacts and emergency services.
+            </div>
+            <button class="sos-big-btn" onclick="alert('SOS Alert Sent! In real app, this would call emergency services.')">
+                <span class="sos-icon-btn">🆘</span>
+                <span>HOLD FOR SOS</span>
+            </button>
+            <div style="margin-top: 40px; background: #f3f4f6; padding: 16px; border-radius: 12px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <span style="font-size: 24px;">📞</span>
+                    <div>
+                        <div style="font-weight: 600;">Emergency Helpline</div>
+                        <div style="color: #6b7280;">112</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 24px;">📍</span>
+                    <div>
+                        <div style="font-weight: 600;">Share Live Location</div>
+                        <div style="color: #6b7280;">Lat: 19.0760, Lng: 72.8777</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 9: App Info / Deploy -->
+        <div class="screen" id="info" style="background: #f8f9fa;">
+            <div class="app-bar">
+                <div class="app-bar-title">About BuddyConnect</div>
+                <div class="app-bar-icon" onclick="showScreen('home')">✕</div>
+            </div>
+
+            <div style="text-align: center; padding: 24px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #6C63FF, #4A42DB); border-radius: 20px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 40px;">👥</div>
+                <div style="font-size: 24px; font-weight: bold; color: #1a1a2e;">BuddyConnect</div>
+                <div style="color: #6b7280; margin-top: 4px;">Version 1.0.0</div>
+            </div>
+
+            <div class="section-title">✅ Features Built (30+)</div>
+            <div class="feature-list">
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Email, Google & Phone Authentication</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">AI Companion Matching (Gemini API)</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Google Maps with Live Location</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Real-time Chat with Voice Messages</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Booking System with Calendar</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Wallet with Stripe & Razorpay</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">SOS Emergency Button</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Identity & Background Verification</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">AI Safety Monitoring</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Admin Dashboard with Analytics</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Referral Program</span></div>
+                <div class="feature-item"><span class="feature-check">✓</span><span class="feature-text">Ratings & Reviews</span></div>
+            </div>
+
+            <div class="section-title">🛠️ Tech Stack</div>
+            <div class="tech-stack">
+                <span class="tech-badge">Flutter 3.x</span>
+                <span class="tech-badge">Firebase</span>
+                <span class="tech-badge">Firestore</span>
+                <span class="tech-badge">Cloud Functions</span>
+                <span class="tech-badge">Google Maps</span>
+                <span class="tech-badge">Gemini AI</span>
+                <span class="tech-badge">Stripe</span>
+                <span class="tech-badge">Razorpay</span>
+                <span class="tech-badge">BLoC Pattern</span>
+            </div>
+
+            <div class="section-title">📱 How to Deploy</div>
+            <div class="info-card">
+                <div class="info-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Install Flutter SDK on your computer</div>
+                </div>
+                <div class="info-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Create free Firebase project</div>
+                </div>
+                <div class="info-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">Download config files from Firebase</div>
+                </div>
+                <div class="info-step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">Run: flutter pub get && flutter run</div>
+                </div>
+            </div>
+
+            <div class="section-title">🔒 Safety First</div>
+            <div class="info-card">
+                <div class="info-text">
+                    • Only public meeting places allowed<br>
+                    • AI filters adult/intimate content<br>
+                    • Identity verification required<br>
+                    • Emergency SOS with location sharing<br>
+                    • Report and block system<br>
+                    • Admin moderation dashboard
+                </div>
+            </div>
+
+            <button class="deploy-btn" onclick="alert('Download the project files and follow HOW_TO_RUN.md guide!')">
+                🚀 Download Project Files
+            </button>
+
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Auto-transition from splash to login after 3 seconds
+        setTimeout(() => {
+            if (document.getElementById('splash').classList.contains('active')) {
+                showScreen('login');
+            }
+        }, 3000);
+
+        // Click splash to skip
+        document.getElementById('splash').addEventListener('click', () => {
+            showScreen('login');
+        });
+    </script>
+</body>
+</html>
